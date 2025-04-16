@@ -1,0 +1,98 @@
+---
+# 1. PersistentVolumeClaim for Buildpacks cache
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: buildpacks-cache-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+# 2. Tekton Pipeline
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: buildpacks-pipeline
+spec:
+  workspaces:
+    - name: source-workspace
+    - name: cache-workspace
+  params:
+    - name: repo-url
+      type: string
+    - name: branch
+      type: string
+      default: "main"
+    - name: builder-image
+      type: string
+    - name: image-name
+      type: string
+    - name: flags
+      type: string
+      default: "--trust-builder"  # Required for some OpenShift environments
+  tasks:
+    - name: clone-repo
+      taskRef:
+        name: git-clone
+      workspaces:
+        - name: output
+          workspace: source-workspace
+      params:
+        - name: url
+          value: $(params.repo-url)
+        - name: revision
+          value: $(params.branch)
+        - name: deleteExisting
+          value: "true"
+
+    - name: buildpack-build
+      taskRef:
+        name: buildpacks
+      runAfter:
+        - clone-repo
+      workspaces:
+        - name: source
+          workspace: source-workspace
+        - name: cache
+          workspace: cache-workspace
+      params:
+        - name: APP_IMAGE
+          value: $(params.image-name)
+        - name: BUILDER_IMAGE
+          value: $(params.builder-image)
+        - name: FLAGS
+          value: $(params.flags)
+
+---
+# 3. PipelineRun Example
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: buildpacks-pipeline-run-
+spec:
+  pipelineRef:
+    name: buildpacks-pipeline
+  params:
+    - name: repo-url
+      value: "https://github.com/your-username/your-app.git"
+    - name: branch
+      value: "main"
+    - name: builder-image
+      value: "registry.access.redhat.com/ubi8/openjdk-17-runtime:latest"  # Red Hat Builder Image
+    - name: image-name
+      value: "image-registry.openshift-image-registry.svc:5000/your-namespace/your-app:latest"
+  workspaces:
+    - name: source-workspace
+      volumeClaimTemplate:
+        spec:
+          accessModes: [ReadWriteOnce]
+          resources:
+            requests:
+              storage: 1Gi
+    - name: cache-workspace
+      persistentVolumeClaim:
+        claimName: buildpacks-cache-pvc
