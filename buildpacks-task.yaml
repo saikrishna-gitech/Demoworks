@@ -1,0 +1,29 @@
+# buildpacks-task.yaml
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: buildpacks
+spec:
+  params:
+    - name: IMAGE
+      description: Image name to build
+    - name: BUILDER_IMAGE
+      description: Buildpacks builder image
+      default: "paketobuildpacks/builder:base"
+  workspaces:
+    - name: source
+      description: Source code
+  steps:
+    - name: build
+      image: buildpacksio/pack:latest
+      command: ["pack"]
+      args:
+        - "build"
+        - "$(params.IMAGE)"
+        - "--path"
+        - "$(workspaces.source.path)"
+        - "--builder"
+        - "$(params.BUILDER_IMAGE)"
+        - "--no-pull"
+      securityContext:
+        runAsUser: 1001  # Adjust based on OpenShift SCC policies
