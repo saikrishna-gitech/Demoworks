@@ -1,0 +1,41 @@
+# pipeline.yaml
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: buildpacks-pipeline
+spec:
+  params:
+    - name: REPO_URL
+      type: string
+    - name: IMAGE_NAME
+      type: string
+    - name: BUILDER_IMAGE
+      type: string
+      default: "paketobuildpacks/builder:base"
+  workspaces:
+    - name: shared-workspace
+  tasks:
+    - name: clone-repo
+      taskRef:
+        name: git-clone  # Preinstalled Tekton Task
+      params:
+        - name: url
+          value: "$(params.REPO_URL)"
+        - name: revision
+          value: "main"
+      workspaces:
+        - name: output
+          workspace: shared-workspace
+
+    - name: build-image
+      taskRef:
+        name: buildpacks
+      runAfter: ["clone-repo"]
+      params:
+        - name: IMAGE
+          value: "$(params.IMAGE_NAME)"
+        - name: BUILDER_IMAGE
+          value: "$(params.BUILDER_IMAGE)"
+      workspaces:
+        - name: source
+          workspace: shared-workspace
