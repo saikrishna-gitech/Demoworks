@@ -1,0 +1,37 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: git-clone
+spec:
+  description: "Clones a git repository"
+  params:
+    - name: url
+      description: Repository URL to clone
+      type: string
+    - name: revision
+      description: Revision to checkout (branch, tag, SHA)
+      type: string
+      default: ""
+    - name: subdirectory
+      description: Subdirectory inside the workspace
+      type: string
+      default: ""
+  workspaces:
+    - name: output
+      description: The workspace where the repo will be cloned
+  steps:
+    - name: clone
+      image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.32.0
+      script: |
+        #!/bin/sh
+        set -e
+        if [ ! -d "$(workspaces.output.path)/$(params.subdirectory)" ]; then
+          mkdir -p "$(workspaces.output.path)/$(params.subdirectory)"
+          cd "$(workspaces.output.path)/$(params.subdirectory)"
+          git init
+          git remote add origin "$(params.url)"
+          git fetch --depth=1 origin "$(params.revision)"
+          git checkout FETCH_HEAD
+        else
+          echo "Directory already exists. Skipping clone."
+        fi
