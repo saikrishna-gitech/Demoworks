@@ -1,0 +1,10 @@
+steps:
+  - name: setup-ssh
+    image: alpine
+    script: |
+      # Copy SSH files from read-only volume to a writable directory
+      mkdir -p /tekton/home/.ssh
+      cp -r /tekton/home/.ssh/ssh-directory/* /tekton/home/.ssh/
+      # Set correct permissions
+      chmod 600 /tekton/home/.ssh/id_rsa
+      chmod 644 /tekton/home/.ssh/id_rsa.pub
