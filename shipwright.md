@@ -135,4 +135,3 @@ This will delete the associated Build resource and, depending on the configurati
 Conclusion
 
 The Shipwright Build Operator leverages Kubernetes CRDs to provide a flexible way of defining and managing custom builds in OpenShift. By creating and managing these custom resources, users can efficiently handle the lifecycle of their builds and integrate into the Kubernetes ecosystem. The CRDs define the structure of custom resources like Build and BuildRun, and the operator automates the process of building container images based on those resources.
-
