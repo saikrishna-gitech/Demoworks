@@ -1,0 +1,39 @@
+{
+  "template": {
+    "title": "Deploy Python App to OpenShift",
+    "phases": [
+      {
+        "phase": "Deploy to OpenShift",
+        "tasks": [
+          {
+            "type": "xlrelease.ScriptTask",
+            "title": "Login to OpenShift",
+            "script": "oc login https://${openshift_api_url} --token=${openshift_token} --insecure-skip-tls-verify"
+          },
+          {
+            "type": "xlrelease.ScriptTask",
+            "title": "Apply Deployment",
+            "script": "cat <<EOF | oc apply -f -\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: ${deployment_name}\n  namespace: ${namespace}\nspec:\n  replicas: 1\n  selector:\n    matchLabels:\n      app: ${deployment_name}\n  template:\n    metadata:\n      labels:\n        app: ${deployment_name}\n    spec:\n      containers:\n      - name: python-container\n        image: ${image_url}\n        ports:\n        - containerPort: 5000\nEOF"
+          },
+          {
+            "type": "xlrelease.ScriptTask",
+            "title": "Expose Service",
+            "script": "oc expose deployment ${deployment_name} --port=5000 --name=${deployment_name}-svc -n ${namespace}\noc expose svc/${deployment_name}-svc -n ${namespace}"
+          },
+          {
+            "type": "xlrelease.ScriptTask",
+            "title": "Verify Deployment",
+            "script": "oc rollout status deployment/${deployment_name} -n ${namespace}"
+          }
+        ]
+      }
+    ],
+    "variables": [
+      { "key": "openshift_api_url", "type": "xlrelease.StringVariable" },
+      { "key": "openshift_token", "type": "xlrelease.PasswordStringVariable" },
+      { "key": "namespace", "type": "xlrelease.StringVariable" },
+      { "key": "deployment_name", "type": "xlrelease.StringVariable" },
+      { "key": "image_url", "type": "xlrelease.StringVariable" }
+    ]
+  }
+}
