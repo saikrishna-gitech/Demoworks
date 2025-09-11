@@ -255,3 +255,68 @@ except Exception as e:
 
 ---
 
+Here’s a simple Ansible playbook that sets up an Nginx server (I think you meant “inginix” → nginx) on a target Linux machine:
+
+---
+- name: Setup sample Nginx server
+  hosts: webservers
+  become: yes
+  tasks:
+
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Install Nginx (RHEL/CentOS)
+      yum:
+        name: nginx
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: Start and enable Nginx service
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+
+    - name: Deploy sample index.html page
+      copy:
+        dest: /var/www/html/index.html
+        content: |
+          <html>
+          <head><title>Welcome to Sample Nginx Server</title></head>
+          <body>
+          <h1>Hello from Ansible provisioned Nginx server!</h1>
+          </body>
+          </html>
+
+    - name: Open HTTP port (80) on firewalld (only for RedHat/CentOS)
+      firewalld:
+        service: http
+        permanent: yes
+        state: enabled
+        immediate: yes
+      when: ansible_os_family == "RedHat"
+
+Steps:
+
+1. Define your inventory file (hosts.ini) like this:
+
+[webservers]
+server1 ansible_host=192.168.1.10 ansible_user=ubuntu
+
+
+2. Run the playbook:
+
+ansible-playbook -i hosts.ini nginx_setup.yml
+
+
+3. After running, open the server’s IP in your browser → you’ll see the sample HTML page.
+
+
+
+
+
