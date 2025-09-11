@@ -253,10 +253,10 @@ except Exception as e:
 2. Ensures the **Apache service is running** and enabled at boot.
 3. Creates a simple **index.html** page.
 
----
 
-Here’s a simple Ansible playbook that sets up an Nginx server (I think you meant “inginix” → nginx) on a target Linux machine:
+Here’s a simple **Ansible playbook** that sets up an **Nginx server** (I think you meant “inginix” → **nginx**) on a target Linux machine:
 
+```yaml
 ---
 - name: Setup sample Nginx server
   hosts: webservers
@@ -300,23 +300,22 @@ Here’s a simple Ansible playbook that sets up an Nginx server (I think you mea
         state: enabled
         immediate: yes
       when: ansible_os_family == "RedHat"
+```
 
-Steps:
+### Steps:
 
-1. Define your inventory file (hosts.ini) like this:
+1. Define your inventory file (`hosts.ini`) like this:
 
-[webservers]
-server1 ansible_host=192.168.1.10 ansible_user=ubuntu
-
+   ```ini
+   [webservers]
+   server1 ansible_host=192.168.1.10 ansible_user=ubuntu
+   ```
 
 2. Run the playbook:
 
-ansible-playbook -i hosts.ini nginx_setup.yml
-
+   ```bash
+   ansible-playbook -i hosts.ini nginx_setup.yml
+   ```
 
 3. After running, open the server’s IP in your browser → you’ll see the sample HTML page.
-
-
-
-
 
