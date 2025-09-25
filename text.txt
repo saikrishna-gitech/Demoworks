@@ -1,3 +1,4 @@
-• Pipeline phases: Build → Deploy → Test → Approvals
-• Dashboard shows task status (success, in-progress, failed)
-• Provides real-time visibility for stakeholders
+• Jenkins: Fetch builds & artifacts
+• Ansible: Automated deployments
+• ServiceNow: Change approvals & compliance
+• Seamless connection across DevOps ecosystem
