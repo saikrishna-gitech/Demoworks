@@ -1,4 +1,3 @@
-• XL Release (XLR) is a release orchestration tool
-• Automates and standardizes deployments
-• Integrates with Jenkins, Ansible, ServiceNow, etc.
-• Provides governance, visibility, and traceability
+• Releases can be triggered manually or automatically
+• Parameters like environment and version are selected
+• Ensures consistent and repeatable releases
