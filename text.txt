@@ -1,4 +1,3 @@
-• Automated tests triggered post-deployment
-• Results captured in XLR
-• Failures pause pipeline for stability
-• Ensures only stable builds move forward
+• Manual approval gates for QA/business teams
+• Notifications to stakeholders
+• Enforces compliance while supporting automation
