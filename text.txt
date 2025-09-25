@@ -1,4 +1,4 @@
-• Jenkins: Fetch builds & artifacts
-• Ansible: Automated deployments
-• ServiceNow: Change approvals & compliance
-• Seamless connection across DevOps ecosystem
+• Automated tests triggered post-deployment
+• Results captured in XLR
+• Failures pause pipeline for stability
+• Ensures only stable builds move forward
